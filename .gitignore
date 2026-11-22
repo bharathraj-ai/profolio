@@ -1,0 +1,13 @@
+node_modules/
+target/
+dist/
+.env
+.evn
+.env.*
+!.env.example
+*.log
+.idea/
+.vscode/
+uploads/
+_vite_tmp/
+_api_tmp/

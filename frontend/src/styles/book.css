@@ -1,0 +1,450 @@
+/* ==============================================================================
+   3D Interactive Book Styles - Projects Section
+   ============================================================================== */
+
+:root {
+  --book-cream-1: #fdfbf7;
+  --book-cream-2: #f8f4ec;
+  --book-cream-border: #ede4d3;
+  --book-leather: #0b1329;
+  --book-gold: #c59b27;
+  --book-gold-light: rgba(197, 155, 39, 0.2);
+  --book-ink: #1e293b;
+  --book-ink-muted: #64748b;
+  --book-shadow-edge: rgba(0, 0, 0, 0.08);
+}
+
+.book-section {
+  position: relative;
+  overflow: hidden;
+  padding: 4.5rem 0 5.5rem;
+}
+
+.book-wrapper {
+  position: relative;
+  max-width: 1040px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 3D Hardcover Base */
+.book-hardcover {
+  position: relative;
+  width: 100%;
+  max-width: 980px;
+  background: var(--book-leather);
+  border-radius: 14px;
+  padding: 16px 14px;
+  box-shadow:
+    0 26px 58px -12px rgba(11, 19, 41, 0.45),
+    0 16px 32px -16px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  perspective: 2400px;
+}
+
+/* Gilded spine ridge */
+.book-hardcover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(255, 255, 255, 0.1) 40%,
+    rgba(197, 155, 39, 0.3) 50%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.8);
+  z-index: 20;
+  pointer-events: none;
+}
+
+/* Page Stack Layer (Thickness illusion) */
+.book-stage {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow:
+    0 0 0 1px var(--book-cream-border),
+    0 2px 0 #ded7c6,
+    0 4px 0 #d4cbba,
+    0 6px 0 #c9bfae,
+    0 8px 18px rgba(0, 0, 0, 0.18);
+  border-radius: 6px;
+  overflow: visible;
+}
+
+/* Base Page Styling */
+.book-page {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: var(--book-cream-1);
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.6) 0%, rgba(246, 239, 227, 0.4) 100%),
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 0%, transparent 8%, transparent 92%, rgba(0, 0, 0, 0.05) 100%);
+  box-sizing: border-box;
+  overflow: hidden;
+  user-select: none;
+  cursor: grab;
+  border-radius: 4px;
+}
+
+.book-page:active {
+  cursor: grabbing;
+}
+
+/* Left & Right Page Inner Spine Shadow Gradients */
+.book-page--left {
+  box-shadow: inset -18px 0 24px -8px rgba(0, 0, 0, 0.12);
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.book-page--right {
+  box-shadow: inset 18px 0 24px -8px rgba(0, 0, 0, 0.12);
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.book-page-content {
+  position: relative;
+  height: 100%;
+  padding: 2.25rem 2.25rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+/* Running Header */
+.book-running-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--book-ink-muted);
+  border-bottom: 1px solid var(--book-gold-light);
+  padding-bottom: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.book-running-header__title {
+  color: var(--book-gold);
+  font-weight: 600;
+}
+
+/* Left Page: Specifications */
+.book-project-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #0284c7;
+  margin-bottom: 0.4rem;
+}
+
+.book-project-title {
+  font-family: var(--font-display, "Cinzel", "Playfair Display", Georgia, serif);
+  font-size: 1.85rem;
+  line-height: 1.15;
+  color: var(--book-ink);
+  margin: 0 0 0.4rem 0;
+  font-weight: 700;
+}
+
+.book-project-subtitle {
+  font-size: 0.92rem;
+  font-style: italic;
+  color: #475569;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.book-project-divider {
+  width: 44px;
+  height: 2px;
+  background: var(--book-gold);
+  margin-bottom: 1.2rem;
+}
+
+.book-project-desc {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: #334155;
+  margin-bottom: 1.25rem;
+}
+
+.book-features-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #0f172a;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+}
+
+.book-features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem 0;
+}
+
+.book-features-list li {
+  position: relative;
+  padding-left: 1.25rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #475569;
+  margin-bottom: 0.45rem;
+}
+
+.book-features-list li::before {
+  content: '✦';
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 0.7rem;
+  color: var(--book-gold);
+}
+
+/* Right Page: Visual & Tech */
+.book-visual-frame {
+  position: relative;
+  width: 100%;
+  height: 210px;
+  background: #f1ede4;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.1),
+    0 4px 10px rgba(0, 0, 0, 0.06);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.book-visual-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.book-schematic {
+  width: 100%;
+  height: 100%;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(135deg, #f8f6f0 0%, #ece5d6 100%);
+  border: 1px dashed rgba(197, 155, 39, 0.4);
+}
+
+.book-schematic__icon {
+  font-size: 2.2rem;
+  color: var(--book-gold);
+  margin-bottom: 0.5rem;
+}
+
+.book-schematic__title {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--book-ink);
+  margin-bottom: 0.25rem;
+}
+
+.book-schematic__sub {
+  font-size: 0.78rem;
+  color: var(--book-ink-muted);
+}
+
+/* Technologies Section */
+.book-tech-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #0f172a;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.book-tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1.25rem;
+}
+
+.book-tech-tag {
+  font-size: 0.78rem;
+  background: #ede6d7;
+  color: #1e293b;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  font-weight: 500;
+}
+
+/* Action Links */
+.book-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.book-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.book-btn--primary {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+.book-btn--primary:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+}
+
+.book-btn--outline {
+  background: transparent;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+}
+
+.book-btn--outline:hover {
+  background: #ede6d7;
+}
+
+/* Running Footer & Page Number */
+.book-running-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--book-ink-muted);
+  border-top: 1px solid var(--book-gold-light);
+  padding-top: 0.6rem;
+  margin-top: 1rem;
+}
+
+.book-page-num {
+  font-family: var(--font-display, Georgia, serif);
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--book-gold);
+}
+
+.book-corner-hint {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s ease;
+}
+
+.book-page:hover .book-corner-hint {
+  color: #0284c7;
+}
+
+/* External Navigation Controls */
+.book-nav-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.book-nav-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.book-nav-arrow:hover:not(:disabled) {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2);
+}
+
+.book-nav-arrow:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.book-nav-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.book-nav-spread {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.book-nav-hint {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-top: 0.2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .book-hardcover {
+    padding: 10px 8px;
+  }
+  .book-page-content {
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+  .book-project-title {
+    font-size: 1.45rem;
+  }
+  .book-visual-frame {
+    height: 160px;
+  }
+}
+

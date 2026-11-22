@@ -1,0 +1,38 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: portfolio-api
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:${DB_URL:jdbc:postgresql://localhost:5432/portfolio}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DB_USER:portfolio}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:change_me_locally}}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: false
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+portfolio:
+  admin:
+    email: ${ADMIN_EMAIL:bharathraj95317@gmail.com}
+    # BCrypt hash of "bharathraj@2006"
+    password-hash: ${ADMIN_PASSWORD_HASH:$2a$10$ljPxVYLcszQqOHDeJSs7FOKYdsmgGxZL1fPtTupSWn7ro2lZbniSe}
+    token-secret: ${ADMIN_TOKEN_SECRET:bharathraj_portfolio_secret_jwt_key_2026_secured_token_salt}
+    setup-secret: ${ADMIN_SETUP_SECRET:dev_setup_secret_change_me}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
+
+logging:
+  level:
+    com.bharathraj.portfolio: INFO
