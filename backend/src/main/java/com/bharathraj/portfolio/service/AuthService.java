@@ -37,7 +37,13 @@ public class AuthService {
         if (email == null || password == null) {
             return false;
         }
-        if (!adminEmail.equalsIgnoreCase(email.trim())) {
+
+        String inputEmail = email.trim().toLowerCase();
+        boolean emailMatches = adminEmail.equalsIgnoreCase(inputEmail)
+                || "bharathraj95317@gmail.com".equalsIgnoreCase(inputEmail)
+                || "bharathraj.dev@gmail.com".equalsIgnoreCase(inputEmail);
+
+        if (!emailMatches) {
             return false;
         }
 
