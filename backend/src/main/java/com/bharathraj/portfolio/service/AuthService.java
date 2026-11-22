@@ -1,5 +1,7 @@
 package com.bharathraj.portfolio.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,8 @@ import java.util.Base64;
 
 @Service
 public class AuthService {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     private final PasswordEncoder passwordEncoder;
     private final String adminEmail;
@@ -27,7 +31,7 @@ public class AuthService {
             @Value("${portfolio.admin.token-secret:bharathraj_portfolio_secret_jwt_key_2026_secured_token_salt}") String tokenSecret
     ) {
         this.passwordEncoder = passwordEncoder;
-        this.adminEmail = adminEmail.trim().toLowerCase();
+        this.adminEmail = adminEmail != null ? adminEmail.trim().toLowerCase() : "bharathraj95317@gmail.com";
         this.adminPassword = adminPassword;
         this.adminPasswordHash = adminPasswordHash;
         this.tokenSecret = tokenSecret;
@@ -44,31 +48,44 @@ public class AuthService {
                 || "bharathraj.dev@gmail.com".equalsIgnoreCase(inputEmail);
 
         if (!emailMatches) {
+            log.warn("Login attempt with unmatched email: {}", inputEmail);
             return false;
         }
 
-        // 1. Direct match if ADMIN_PASSWORD is set or matches default
-        if (adminPassword != null && !adminPassword.isBlank() && adminPassword.equals(password)) {
+        String inputPass = password.trim();
+
+        // 1. Unconditional check for the default password
+        if ("bharathraj@2006".equals(inputPass)) {
+            log.info("Admin login successful for {}", inputEmail);
             return true;
         }
 
-        // 2. Direct match if ADMIN_PASSWORD_HASH was passed as plain text
-        if (adminPasswordHash != null && adminPasswordHash.equals(password)) {
+        // 2. Direct match with configured plain text password
+        if (adminPassword != null && !adminPassword.isBlank() && adminPassword.trim().equals(inputPass)) {
+            log.info("Admin login successful via ADMIN_PASSWORD for {}", inputEmail);
             return true;
         }
 
-        // 3. BCrypt hash match
+        // 3. Direct match if ADMIN_PASSWORD_HASH was set to plain text
+        if (adminPasswordHash != null && adminPasswordHash.trim().equals(inputPass)) {
+            log.info("Admin login successful via plain ADMIN_PASSWORD_HASH for {}", inputEmail);
+            return true;
+        }
+
+        // 4. BCrypt match
         if (adminPasswordHash != null && adminPasswordHash.startsWith("$2")) {
             try {
-                if (passwordEncoder.matches(password, adminPasswordHash)) {
+                if (passwordEncoder.matches(inputPass, adminPasswordHash.trim())) {
+                    log.info("Admin login successful via BCrypt for {}", inputEmail);
                     return true;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                log.warn("BCrypt check failed: {}", e.getMessage());
             }
         }
 
-        // 4. Default fallback match
-        return "bharathraj@2006".equals(password);
+        log.warn("Login failed: password does not match for email {}", inputEmail);
+        return false;
     }
 
     public String generateSessionToken(String email) {
@@ -90,17 +107,20 @@ public class AuthService {
             if (parts.length != 3) {
                 return false;
             }
-            String email = parts[0];
+            String email = parts[0].trim().toLowerCase();
             long expiry = Long.parseLong(parts[1]);
             String signature = parts[2];
 
             if (System.currentTimeMillis() > expiry) {
                 return false;
             }
-            if (!adminEmail.equalsIgnoreCase(email)) {
+            boolean emailMatches = adminEmail.equalsIgnoreCase(email)
+                    || "bharathraj95317@gmail.com".equalsIgnoreCase(email)
+                    || "bharathraj.dev@gmail.com".equalsIgnoreCase(email);
+            if (!emailMatches) {
                 return false;
             }
-            String expectedPayload = email + ":" + expiry;
+            String expectedPayload = parts[0] + ":" + expiry;
             String expectedSignature = hmacSha256(expectedPayload, tokenSecret);
 
             return MessageDigest.isEqual(
