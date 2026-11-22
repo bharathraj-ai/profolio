@@ -13,96 +13,21 @@ export function Projects() {
   const loading = portfolio ? portfolio.loading && !projects : fallback.loading;
   const error = portfolio?.error && !projects ? portfolio.error : fallback.error;
 
-  const fallbackProjects: ProjectData[] = [
-    {
-      id: 1,
-      name: "Data Guardian 2.0",
-      tagline: "Data Privacy & Automated Protection Tool",
-      description:
-        "A comprehensive data privacy and security platform designed to automatically detect, classify, and mask personally identifiable information (PII) across enterprise datasets with compliance auditing.",
-      githubUrl: "https://github.com/bharathrajS/data-guardian",
-      demoUrl: "https://data-guardian.bharathraj.dev",
-      isFeatured: true,
-      sortOrder: 0,
-      technologies: ["Java", "Spring Boot", "PostgreSQL", "REST API", "Docker"],
-      features: [
-        "Automated PII detection and rule-based masking",
-        "Multi-format file processing (CSV, JSON, SQL dumps)",
-        "Real-time privacy compliance and audit logging",
-        "Role-based security and encrypted data exports",
-      ],
-    },
-    {
-      id: 2,
-      name: "Udhayam",
-      tagline: "Community Empowerment & Social Impact Platform",
-      description:
-        "A full-stack collaborative platform built to connect rural communities and educational initiatives with mentors, resources, and event organizing tools.",
-      githubUrl: "https://github.com/bharathrajS/udhayam",
-      demoUrl: "https://udhayam.bharathraj.dev",
-      isFeatured: true,
-      sortOrder: 1,
-      technologies: ["React", "TypeScript", "Spring Boot", "PostgreSQL", "Tailwind CSS"],
-      features: [
-        "Centralized portal for community resource distribution",
-        "Real-time event notifications and volunteer coordination",
-        "Interactive dashboard for administrative management",
-        "Secure authentication and localized multilingual support",
-      ],
-    },
-    {
-      id: 3,
-      name: "KIT Hackathon",
-      tagline: "Award-Winning Hackathon Innovation Project",
-      description:
-        "An intensive rapid-prototyping solution created during the competitive KIT Hackathon, focusing on high-concurrency event processing and AI-driven automation.",
-      githubUrl: "https://github.com/bharathrajS/kit-hackathon",
-      demoUrl: "https://kit-hackathon.bharathraj.dev",
-      isFeatured: true,
-      sortOrder: 2,
-      technologies: ["Python", "Java", "REST APIs", "PostgreSQL", "WebSockets"],
-      features: [
-        "High-speed data processing pipeline with sub-second latency",
-        "AI-assisted predictive analysis and automated workflow triggers",
-        "Team collaboration and live scoring visualization",
-        "Awarded 1st place recognition for engineering design",
-      ],
-    },
-  ];
-
-  // Merge projects ensuring Data Guardian 2.0, Udhayam, and KIT Hackathon are always present
-  const mergedProjects: ProjectData[] = [];
-  const requiredNames = ["data guardian 2.0", "udhayam", "kit hackathon"];
-
-  for (const name of requiredNames) {
-    const fromApi = projects?.find((p) => p.name.toLowerCase() === name);
-    if (fromApi) {
-      mergedProjects.push(fromApi);
-    } else {
-      const fromFallback = fallbackProjects.find((p) => p.name.toLowerCase() === name);
-      if (fromFallback) mergedProjects.push(fromFallback);
-    }
-  }
-
-  if (projects) {
-    for (const p of projects) {
-      if (!requiredNames.includes(p.name.toLowerCase())) {
-        mergedProjects.push(p);
-      }
-    }
-  }
-
-  const activeProjects = mergedProjects.length > 0 ? mergedProjects : fallbackProjects;
+  const activeProjects = projects || [];
   const count = activeProjects.length;
 
   const [activeIndex, setActiveIndex] = useState(0);
 
   const handleNext = useCallback(() => {
-    setActiveIndex((prev) => (prev + 1) % count);
+    if (count > 0) {
+      setActiveIndex((prev) => (prev + 1) % count);
+    }
   }, [count]);
 
   const handlePrev = useCallback(() => {
-    setActiveIndex((prev) => (prev - 1 + count) % count);
+    if (count > 0) {
+      setActiveIndex((prev) => (prev - 1 + count) % count);
+    }
   }, [count]);
 
   // Keyboard navigation
@@ -202,8 +127,13 @@ export function Projects() {
           </div>
         )}
 
+        {!loading && !error && activeProjects.length === 0 && (
+          <div className="section-empty">No projects found.</div>
+        )}
+
         {/* 3D Rotating Card Carousel */}
-        <div className="projects-carousel">
+        {activeProjects.length > 0 && (
+          <div className="projects-carousel">
           <div className="projects-carousel__stage">
             {activeProjects.map((p, i) => {
               const style = getCardStyle(i);
@@ -374,6 +304,7 @@ export function Projects() {
             </span>
           </div>
         </div>
+        )}
       </div>
     </section>
   );
