@@ -9,6 +9,8 @@ import com.bharathraj.portfolio.entity.SkillCategory;
 import com.bharathraj.portfolio.exception.ResourceNotFoundException;
 import com.bharathraj.portfolio.repository.SkillCategoryRepository;
 import com.bharathraj.portfolio.repository.SkillRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,12 +31,14 @@ public class SkillService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable("public-skills")
     public List<SkillCategoryResponse> findAllCategories() {
         return categoryRepository.findAll(Sort.by(Sort.Direction.ASC, "sortOrder", "id")).stream()
                 .map(this::mapCategoryToResponse)
                 .toList();
     }
 
+    @CacheEvict(value = {"public-skills", "public-bundle"}, allEntries = true)
     public SkillCategoryResponse createCategory(SkillCategoryRequest req) {
         SkillCategory cat = new SkillCategory();
         cat.setName(req.name());
@@ -44,6 +48,7 @@ public class SkillService {
         return mapCategoryToResponse(saved);
     }
 
+    @CacheEvict(value = {"public-skills", "public-bundle"}, allEntries = true)
     public SkillCategoryResponse updateCategory(Long id, SkillCategoryRequest req) {
         SkillCategory cat = categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("SkillCategory", "id", id));
@@ -54,6 +59,7 @@ public class SkillService {
         return mapCategoryToResponse(saved);
     }
 
+    @CacheEvict(value = {"public-skills", "public-bundle"}, allEntries = true)
     public void deleteCategory(Long id) {
         if (!categoryRepository.existsById(id)) {
             throw new ResourceNotFoundException("SkillCategory", "id", id);
@@ -61,6 +67,7 @@ public class SkillService {
         categoryRepository.deleteById(id);
     }
 
+    @CacheEvict(value = {"public-skills", "public-bundle"}, allEntries = true)
     public SkillResponse createSkill(SkillRequest req) {
         SkillCategory category = categoryRepository.findById(req.categoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("SkillCategory", "id", req.categoryId()));
@@ -73,6 +80,7 @@ public class SkillService {
         return new SkillResponse(saved.getId(), saved.getName(), saved.getSortOrder() != null ? saved.getSortOrder() : 0);
     }
 
+    @CacheEvict(value = {"public-skills", "public-bundle"}, allEntries = true)
     public SkillResponse updateSkill(Long id, SkillRequest req) {
         Skill skill = skillRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Skill", "id", id));
@@ -87,6 +95,7 @@ public class SkillService {
         return new SkillResponse(saved.getId(), saved.getName(), saved.getSortOrder() != null ? saved.getSortOrder() : 0);
     }
 
+    @CacheEvict(value = {"public-skills", "public-bundle"}, allEntries = true)
     public void deleteSkill(Long id) {
         if (!skillRepository.existsById(id)) {
             throw new ResourceNotFoundException("Skill", "id", id);
@@ -109,4 +118,3 @@ public class SkillService {
         );
     }
 }
-

@@ -5,6 +5,8 @@ import com.bharathraj.portfolio.dto.CertificationResponse;
 import com.bharathraj.portfolio.entity.Certification;
 import com.bharathraj.portfolio.exception.ResourceNotFoundException;
 import com.bharathraj.portfolio.repository.CertificationRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,12 +24,14 @@ public class CertificationService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable("public-certifications")
     public List<CertificationResponse> findAll() {
         return certificationRepository.findAll(Sort.by(Sort.Direction.ASC, "sortOrder", "id")).stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
+    @CacheEvict(value = {"public-certifications", "public-bundle"}, allEntries = true)
     public CertificationResponse create(CertificationRequest req) {
         Certification c = new Certification();
         mapToEntity(req, c);
@@ -35,6 +39,7 @@ public class CertificationService {
         return mapToResponse(saved);
     }
 
+    @CacheEvict(value = {"public-certifications", "public-bundle"}, allEntries = true)
     public CertificationResponse update(Long id, CertificationRequest req) {
         Certification c = certificationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Certification", "id", id));
@@ -43,6 +48,7 @@ public class CertificationService {
         return mapToResponse(saved);
     }
 
+    @CacheEvict(value = {"public-certifications", "public-bundle"}, allEntries = true)
     public void delete(Long id) {
         if (!certificationRepository.existsById(id)) {
             throw new ResourceNotFoundException("Certification", "id", id);
@@ -68,4 +74,3 @@ public class CertificationService {
         );
     }
 }
-

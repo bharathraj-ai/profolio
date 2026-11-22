@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { usePortfolio } from "../../context/PortfolioContext";
 import { useApi } from "../../hooks/useApi";
 import { getAchievements, getCertifications } from "../../api/achievementService";
 import { AchievementData, CertificationData } from "../../types/api";
@@ -13,11 +14,15 @@ const cardVariant: import("framer-motion").Variants = {
 };
 
 export function Achievements() {
-  const { data: achievements, loading: achLoading, error: achError } = useApi<AchievementData[]>(getAchievements);
-  const { data: certifications, loading: certLoading, error: certError } = useApi<CertificationData[]>(getCertifications);
+  const portfolio = usePortfolio();
+  const fallbackAch = useApi<AchievementData[]>(getAchievements);
+  const fallbackCert = useApi<CertificationData[]>(getCertifications);
 
-  const loading = achLoading || certLoading;
-  const error = achError || certError;
+  const achievements = portfolio?.data?.achievements || fallbackAch.data;
+  const certifications = portfolio?.data?.certifications || fallbackCert.data;
+
+  const loading = portfolio ? portfolio.loading && (!achievements || !certifications) : (fallbackAch.loading || fallbackCert.loading);
+  const error = portfolio?.error && (!achievements || !certifications) ? portfolio.error : (fallbackAch.error || fallbackCert.error);
 
   return (
     <section id="achievements" className="section">

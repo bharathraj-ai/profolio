@@ -5,6 +5,8 @@ import com.bharathraj.portfolio.dto.EducationResponse;
 import com.bharathraj.portfolio.entity.Education;
 import com.bharathraj.portfolio.exception.ResourceNotFoundException;
 import com.bharathraj.portfolio.repository.EducationRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,12 +24,14 @@ public class EducationService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable("public-education")
     public List<EducationResponse> findAll() {
         return educationRepository.findAll(Sort.by(Sort.Direction.ASC, "sortOrder", "id")).stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
+    @CacheEvict(value = {"public-education", "public-bundle"}, allEntries = true)
     public EducationResponse create(EducationRequest req) {
         Education education = new Education();
         mapToEntity(req, education);
@@ -35,6 +39,7 @@ public class EducationService {
         return mapToResponse(saved);
     }
 
+    @CacheEvict(value = {"public-education", "public-bundle"}, allEntries = true)
     public EducationResponse update(Long id, EducationRequest req) {
         Education education = educationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Education", "id", id));
@@ -43,6 +48,7 @@ public class EducationService {
         return mapToResponse(saved);
     }
 
+    @CacheEvict(value = {"public-education", "public-bundle"}, allEntries = true)
     public void delete(Long id) {
         if (!educationRepository.existsById(id)) {
             throw new ResourceNotFoundException("Education", "id", id);
@@ -74,4 +80,3 @@ public class EducationService {
         );
     }
 }
-

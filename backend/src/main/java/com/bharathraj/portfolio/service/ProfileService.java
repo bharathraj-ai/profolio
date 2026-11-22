@@ -5,6 +5,8 @@ import com.bharathraj.portfolio.dto.ProfileResponse;
 import com.bharathraj.portfolio.entity.Profile;
 import com.bharathraj.portfolio.exception.ResourceNotFoundException;
 import com.bharathraj.portfolio.repository.ProfileRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ public class ProfileService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable("public-profile")
     public ProfileResponse findProfile() {
         Profile profile = profileRepository.findAll().stream()
                 .findFirst()
@@ -28,6 +31,7 @@ public class ProfileService {
         return mapToResponse(profile);
     }
 
+    @CacheEvict(value = {"public-profile", "public-bundle"}, allEntries = true)
     public ProfileResponse updateProfile(ProfileRequest req) {
         Profile profile = profileRepository.findAll().stream()
                 .findFirst()
@@ -66,4 +70,3 @@ public class ProfileService {
         );
     }
 }
-

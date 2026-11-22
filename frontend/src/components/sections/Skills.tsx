@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { usePortfolio } from "../../context/PortfolioContext";
 import { useApi } from "../../hooks/useApi";
 import { getSkills } from "../../api/skillService";
 import { SkillCategoryData } from "../../types/api";
@@ -13,7 +14,11 @@ const cardVariant: import("framer-motion").Variants = {
 };
 
 export function Skills() {
-  const { data: categories, loading, error } = useApi<SkillCategoryData[]>(getSkills);
+  const portfolio = usePortfolio();
+  const fallback = useApi<SkillCategoryData[]>(getSkills);
+  const categories = portfolio?.data?.skills || fallback.data;
+  const loading = portfolio ? portfolio.loading && !categories : fallback.loading;
+  const error = portfolio?.error && !categories ? portfolio.error : fallback.error;
 
   return (
     <section id="skills" className="section">
@@ -28,7 +33,7 @@ export function Skills() {
 
         {loading && (
           <div className="section-loading">
-            <span className="section-loading__spinner" /> Loading technical skills...
+            <span className="section-loading__spinner" /> Loading skills...
           </div>
         )}
 
@@ -44,24 +49,30 @@ export function Skills() {
 
         {!loading && !error && categories && categories.length > 0 && (
           <div className="skills__grid">
-            {categories.map((cat, i) => (
+            {categories.map((category, i) => (
               <motion.div
-                key={cat.id}
+                key={category.id}
                 className="card skill-card"
                 variants={cardVariant}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, margin: "-60px" }}
+                viewport={{ once: true, margin: "-40px" }}
                 custom={i}
               >
-                <div className="skill-card__icon">{cat.iconText || "⚙"}</div>
-                <h3 className="skill-card__title">{cat.name}</h3>
-                <div className="skill-card__list">
-                  {cat.skills && cat.skills.map((s) => (
-                    <span key={s.id} className="skill-tag">
-                      {s.name}
-                    </span>
-                  ))}
+                <div className="skill-card__header">
+                  <span className="skill-card__icon">{category.iconText || "⚡"}</span>
+                  <h3 className="skill-card__title">{category.name}</h3>
+                </div>
+                <div className="skill-card__tags">
+                  {category.skills && category.skills.length > 0 ? (
+                    category.skills.map((skill) => (
+                      <span key={skill.id} className="tag">
+                        {skill.name}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="section-empty">No skills in this category.</span>
+                  )}
                 </div>
               </motion.div>
             ))}

@@ -91,3 +91,13 @@ export interface ContactMessageData {
   submittedAt: string;
   status: 'UNREAD' | 'READ' | 'REPLIED';
 }
+
+export interface PortfolioBundleData {
+  profile: ProfileData;
+  education: EducationData[];
+  skills: SkillCategoryData[];
+  projects: ProjectData[];
+  achievements: AchievementData[];
+  certifications: CertificationData[];
+  codingProfiles: CodingProfileData[];
+}

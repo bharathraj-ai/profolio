@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { usePortfolio } from "../../context/PortfolioContext";
 import { useApi } from "../../hooks/useApi";
 import { getProfile } from "../../api/profileService";
 import { getEducation } from "../../api/educationService";
@@ -10,11 +11,15 @@ const fadeIn = {
 };
 
 export function About() {
-  const { data: profile, loading: profileLoading, error: profileError } = useApi<ProfileData>(getProfile);
-  const { data: education, loading: eduLoading, error: eduError } = useApi<EducationData[]>(getEducation);
+  const portfolio = usePortfolio();
+  const fallbackProfile = useApi<ProfileData>(getProfile);
+  const fallbackEdu = useApi<EducationData[]>(getEducation);
 
-  const loading = profileLoading || eduLoading;
-  const error = profileError || eduError;
+  const profile = portfolio?.data?.profile || fallbackProfile.data;
+  const education = portfolio?.data?.education || fallbackEdu.data;
+
+  const loading = portfolio ? portfolio.loading && (!profile || !education) : (fallbackProfile.loading || fallbackEdu.loading);
+  const error = portfolio?.error && (!profile || !education) ? portfolio.error : (fallbackProfile.error || fallbackEdu.error);
 
   return (
     <section id="about" className="section section--alt">

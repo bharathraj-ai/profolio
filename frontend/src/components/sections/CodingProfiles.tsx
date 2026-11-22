@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { usePortfolio } from "../../context/PortfolioContext";
 import { useApi } from "../../hooks/useApi";
 import { getCodingProfiles } from "../../api/codingProfileService";
 import { CodingProfileData } from "../../types/api";
@@ -13,7 +14,11 @@ const cardVariant: import("framer-motion").Variants = {
 };
 
 export function CodingProfiles() {
-  const { data: profiles, loading, error } = useApi<CodingProfileData[]>(getCodingProfiles);
+  const portfolio = usePortfolio();
+  const fallback = useApi<CodingProfileData[]>(getCodingProfiles);
+  const profiles = portfolio?.data?.codingProfiles || fallback.data;
+  const loading = portfolio ? portfolio.loading && !profiles : fallback.loading;
+  const error = portfolio?.error && !profiles ? portfolio.error : fallback.error;
 
   return (
     <section id="profiles" className="section section--alt">

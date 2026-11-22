@@ -7,6 +7,8 @@ import com.bharathraj.portfolio.entity.ProjectFeature;
 import com.bharathraj.portfolio.entity.ProjectTechnology;
 import com.bharathraj.portfolio.exception.ResourceNotFoundException;
 import com.bharathraj.portfolio.repository.ProjectRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,7 @@ public class ProjectService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable("public-projects")
     public List<ProjectResponse> findAll() {
         return projectRepository.findAll(Sort.by(Sort.Direction.ASC, "sortOrder", "id")).stream()
                 .map(this::mapToResponse)
@@ -39,6 +42,7 @@ public class ProjectService {
         return mapToResponse(project);
     }
 
+    @CacheEvict(value = {"public-projects", "public-bundle"}, allEntries = true)
     public ProjectResponse create(ProjectRequest req) {
         Project project = new Project();
         project.setName(req.name());
@@ -82,6 +86,7 @@ public class ProjectService {
         return mapToResponse(saved);
     }
 
+    @CacheEvict(value = {"public-projects", "public-bundle"}, allEntries = true)
     public ProjectResponse update(Long id, ProjectRequest req) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project", "id", id));
@@ -128,6 +133,7 @@ public class ProjectService {
         return mapToResponse(saved);
     }
 
+    @CacheEvict(value = {"public-projects", "public-bundle"}, allEntries = true)
     public void delete(Long id) {
         if (!projectRepository.existsById(id)) {
             throw new ResourceNotFoundException("Project", "id", id);

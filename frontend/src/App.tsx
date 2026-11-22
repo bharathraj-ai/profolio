@@ -11,10 +11,11 @@ import { Contact } from "./components/sections/Contact";
 import { AdminGuard } from "./components/admin/AdminGuard";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
 import { AdminLogin } from "./components/admin/AdminLogin";
+import { PortfolioProvider } from "./context/PortfolioContext";
 
 function PublicPortfolio() {
   return (
-    <>
+    <PortfolioProvider>
       <Navbar />
       <Hero />
       <About />
@@ -24,7 +25,7 @@ function PublicPortfolio() {
       <CodingProfiles />
       <Contact />
       <Footer />
-    </>
+    </PortfolioProvider>
   );
 }
 

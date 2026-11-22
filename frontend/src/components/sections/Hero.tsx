@@ -1,4 +1,5 @@
 import { motion, type Variants } from "framer-motion";
+import { usePortfolio } from "../../context/PortfolioContext";
 import { useApi } from "../../hooks/useApi";
 import { getProfile } from "../../api/profileService";
 import { ProfileData } from "../../types/api";
@@ -23,7 +24,11 @@ const imageFade: Variants = {
 };
 
 export function Hero() {
-  const { data: profile, loading, error } = useApi<ProfileData>(getProfile);
+  const portfolio = usePortfolio();
+  const fallback = useApi<ProfileData>(getProfile);
+  const profile = portfolio?.data?.profile || fallback.data;
+  const loading = portfolio ? portfolio.loading && !profile : fallback.loading;
+  const error = portfolio?.error && !profile ? portfolio.error : fallback.error;
 
   return (
     <section id="home" className="hero">

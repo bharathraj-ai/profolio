@@ -5,6 +5,8 @@ import com.bharathraj.portfolio.dto.AchievementResponse;
 import com.bharathraj.portfolio.entity.Achievement;
 import com.bharathraj.portfolio.exception.ResourceNotFoundException;
 import com.bharathraj.portfolio.repository.AchievementRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,12 +24,14 @@ public class AchievementService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable("public-achievements")
     public List<AchievementResponse> findAll() {
         return achievementRepository.findAll(Sort.by(Sort.Direction.ASC, "sortOrder", "id")).stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
+    @CacheEvict(value = {"public-achievements", "public-bundle"}, allEntries = true)
     public AchievementResponse create(AchievementRequest req) {
         Achievement a = new Achievement();
         mapToEntity(req, a);
@@ -35,6 +39,7 @@ public class AchievementService {
         return mapToResponse(saved);
     }
 
+    @CacheEvict(value = {"public-achievements", "public-bundle"}, allEntries = true)
     public AchievementResponse update(Long id, AchievementRequest req) {
         Achievement a = achievementRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Achievement", "id", id));
@@ -43,6 +48,7 @@ public class AchievementService {
         return mapToResponse(saved);
     }
 
+    @CacheEvict(value = {"public-achievements", "public-bundle"}, allEntries = true)
     public void delete(Long id) {
         if (!achievementRepository.existsById(id)) {
             throw new ResourceNotFoundException("Achievement", "id", id);
@@ -69,4 +75,3 @@ public class AchievementService {
         );
     }
 }
-

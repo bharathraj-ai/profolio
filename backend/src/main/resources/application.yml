@@ -9,11 +9,20 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME:${DB_USER:portfolio}}
     password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:change_me_locally}}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 600000
   jpa:
     hibernate:
       ddl-auto: validate
     open-in-view: false
     show-sql: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 50
   flyway:
     enabled: true
 

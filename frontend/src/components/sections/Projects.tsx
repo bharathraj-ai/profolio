@@ -1,12 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
+import { usePortfolio } from "../../context/PortfolioContext";
 import { useApi } from "../../hooks/useApi";
 import { getProjects } from "../../api/projectService";
 import { ProjectData } from "../../types/api";
 import { getImageUrl } from "../../utils/imageUrl";
 
 export function Projects() {
-  const { data: projects, loading, error } = useApi<ProjectData[]>(getProjects);
+  const portfolio = usePortfolio();
+  const fallback = useApi<ProjectData[]>(getProjects);
+  const projects = portfolio?.data?.projects || fallback.data;
+  const loading = portfolio ? portfolio.loading && !projects : fallback.loading;
+  const error = portfolio?.error && !projects ? portfolio.error : fallback.error;
 
   const fallbackProjects: ProjectData[] = [
     {
@@ -366,9 +371,6 @@ export function Projects() {
           <div className="projects-carousel__meta">
             <span className="projects-carousel__counter">
               {activeIndex + 1} of {count} · {activeProjects[activeIndex]?.name}
-            </span>
-            <span className="projects-carousel__hint">
-              💡 Drag card, click side cards, use arrows or keyboard ← → keys
             </span>
           </div>
         </div>
