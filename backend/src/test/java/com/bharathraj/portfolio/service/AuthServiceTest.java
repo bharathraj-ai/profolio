@@ -18,6 +18,7 @@ class AuthServiceTest {
         authService = new AuthService(
                 passwordEncoder,
                 "bharathraj95317@gmail.com",
+                "bharathraj@2006",
                 hash,
                 "test_secret_key_12345"
         );

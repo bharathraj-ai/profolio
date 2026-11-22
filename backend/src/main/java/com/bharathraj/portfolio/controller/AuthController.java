@@ -3,6 +3,7 @@ package com.bharathraj.portfolio.controller;
 import com.bharathraj.portfolio.dto.ApiResponse;
 import com.bharathraj.portfolio.dto.AuthStatusResponse;
 import com.bharathraj.portfolio.dto.LoginRequest;
+import com.bharathraj.portfolio.dto.LoginResponse;
 import com.bharathraj.portfolio.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,9 +32,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<String>> login(@Valid @RequestBody LoginRequest req,
-                                                     HttpServletRequest request,
-                                                     HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest req,
+                                                           HttpServletRequest request,
+                                                           HttpServletResponse response) {
         boolean valid = authService.validateCredentials(req.email(), req.password());
         if (!valid) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -48,12 +49,12 @@ public class AuthController {
                 .secure(isSecure)
                 .path("/")
                 .maxAge(Duration.ofDays(7))
-                .sameSite("Lax")
+                .sameSite(isSecure ? "None" : "Lax")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
-        return ResponseEntity.ok(ApiResponse.ok("Login successful"));
+        return ResponseEntity.ok(ApiResponse.ok(new LoginResponse(sessionToken, req.email().trim().toLowerCase(), "Login successful")));
     }
 
     @GetMapping("/status")
@@ -73,7 +74,7 @@ public class AuthController {
                 .secure(isSecure)
                 .path("/")
                 .maxAge(0)
-                .sameSite("Lax")
+                .sameSite(isSecure ? "None" : "Lax")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -96,4 +97,3 @@ public class AuthController {
         return null;
     }
 }
-
