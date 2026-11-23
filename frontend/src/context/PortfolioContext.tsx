@@ -1,10 +1,15 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { PortfolioBundleData } from '../types/api';
-import { getPortfolioBundle } from '../api/portfolioService';
+import { ProfileData } from '../types/api';
+import { getProfile } from '../api/profileService';
 import { setApiCache } from '../hooks/useApi';
 
+/**
+ * Lightweight context — fetches ONLY the profile on mount (above-the-fold
+ * data for Hero/Navbar).  All other sections lazy-load their own data via
+ * useLazyApi when they scroll into the viewport.
+ */
 interface PortfolioContextType {
-  data: PortfolioBundleData | null;
+  profile: ProfileData | null;
   loading: boolean;
   error: string | null;
   refetch: () => void;
@@ -13,39 +18,32 @@ interface PortfolioContextType {
 const PortfolioContext = createContext<PortfolioContextType | null>(null);
 
 export function PortfolioProvider({ children }: { children: React.ReactNode }) {
-  const [data, setData] = useState<PortfolioBundleData | null>(null);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchBundle = () => {
+  const fetchProfile = () => {
     setLoading(true);
     setError(null);
-    getPortfolioBundle()
-      .then((bundle) => {
-        setData(bundle);
-        // Pre-populate individual function caches for instant useApi lookups
-        setApiCache('getProfile', bundle.profile);
-        setApiCache('getEducation', bundle.education);
-        setApiCache('getSkills', bundle.skills);
-        setApiCache('getProjects', bundle.projects);
-        setApiCache('getAchievements', bundle.achievements);
-        setApiCache('getCertifications', bundle.certifications);
-        setApiCache('getCodingProfiles', bundle.codingProfiles);
+    getProfile()
+      .then((data) => {
+        setProfile(data);
+        setApiCache('getProfile', data);
         setLoading(false);
       })
       .catch((err) => {
-        const msg = err.response?.data?.message || err.message || 'Failed to load portfolio details';
+        const msg = err.response?.data?.message || err.message || 'Failed to load profile';
         setError(msg);
         setLoading(false);
       });
   };
 
   useEffect(() => {
-    fetchBundle();
+    fetchProfile();
   }, []);
 
   return (
-    <PortfolioContext.Provider value={{ data, loading, error, refetch: fetchBundle }}>
+    <PortfolioContext.Provider value={{ profile, loading, error, refetch: fetchProfile }}>
       {children}
     </PortfolioContext.Provider>
   );
@@ -54,4 +52,3 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
 export function usePortfolio(): PortfolioContextType | null {
   return useContext(PortfolioContext);
 }
-

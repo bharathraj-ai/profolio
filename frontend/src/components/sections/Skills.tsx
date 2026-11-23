@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import { usePortfolio } from "../../context/PortfolioContext";
-import { useApi } from "../../hooks/useApi";
+import { useLazyApi } from "../../hooks/useLazyApi";
 import { getSkills } from "../../api/skillService";
 import { SkillCategoryData } from "../../types/api";
 
@@ -14,14 +13,10 @@ const cardVariant: import("framer-motion").Variants = {
 };
 
 export function Skills() {
-  const portfolio = usePortfolio();
-  const fallback = useApi<SkillCategoryData[]>(getSkills);
-  const categories = portfolio?.data?.skills || fallback.data;
-  const loading = portfolio ? portfolio.loading && !categories : fallback.loading;
-  const error = portfolio?.error && !categories ? portfolio.error : fallback.error;
+  const { data: categories, loading, error, ref } = useLazyApi<SkillCategoryData[]>(getSkills);
 
   return (
-    <section id="skills" className="section">
+    <section id="skills" className="section" ref={ref}>
       <div className="container">
         <div className="section__header">
           <h2 className="section__title">Technical Skills</h2>
@@ -63,10 +58,10 @@ export function Skills() {
                   <span className="skill-card__icon">{category.iconText || "⚡"}</span>
                   <h3 className="skill-card__title">{category.name}</h3>
                 </div>
-                <div className="skill-card__tags">
+                <div className="skill-card__list">
                   {category.skills && category.skills.length > 0 ? (
                     category.skills.map((skill) => (
-                      <span key={skill.id} className="tag">
+                      <span key={skill.id} className="skill-tag">
                         {skill.name}
                       </span>
                     ))

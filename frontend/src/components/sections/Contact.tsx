@@ -1,15 +1,11 @@
 import { type FormEvent, useState } from "react";
 import { motion } from "framer-motion";
 import { usePortfolio } from "../../context/PortfolioContext";
-import { useApi } from "../../hooks/useApi";
-import { getProfile } from "../../api/profileService";
 import { submitContact } from "../../api/contactService";
-import { ProfileData } from "../../types/api";
 
 export function Contact() {
   const portfolio = usePortfolio();
-  const fallback = useApi<ProfileData>(getProfile);
-  const profile = portfolio?.data?.profile || fallback.data;
+  const profile = portfolio?.profile ?? null;
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");

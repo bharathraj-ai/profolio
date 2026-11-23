@@ -8,14 +8,8 @@ interface ProjectBookProps {
 }
 
 export function ProjectBook({ projects }: ProjectBookProps) {
-  // Guarantee project ordering: Data Guardian 2.0, Udhayam, KIT Hackathon, then any others
+  // Sort by backend sortOrder; no hardcoded project-name priority
   const sortedProjects = [...projects].sort((a, b) => {
-    const priority = ['data guardian 2.0', 'udhayam', 'kit hackathon'];
-    const aIdx = priority.indexOf(a.name.toLowerCase());
-    const bIdx = priority.indexOf(b.name.toLowerCase());
-    if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
-    if (aIdx !== -1) return -1;
-    if (bIdx !== -1) return 1;
     return (a.sortOrder || 0) - (b.sortOrder || 0);
   });
 
@@ -169,12 +163,7 @@ export function ProjectBook({ projects }: ProjectBookProps) {
 
   // Render right page content (Blueprint & Interactions)
   const renderRightPage = (proj: ProjectData, pageNum: number, isTurning = false) => {
-    // Generate specialized schematic data based on project type
-    const nameLower = proj.name.toLowerCase();
-    const isSecurity = nameLower.includes('guardian') || nameLower.includes('privacy');
-    const isCommunity = nameLower.includes('udhayam') || nameLower.includes('community');
-    const isHackathon = nameLower.includes('hackathon') || nameLower.includes('kit');
-
+    // Generic architecture flow for any project — no hardcoded project names
     return (
       <div className={`book-page book-page--right ${isTurning ? 'book-page--turning' : ''}`}>
         <div className="book-page-texture" />
@@ -198,47 +187,20 @@ export function ProjectBook({ projects }: ProjectBookProps) {
                 <div className="book-schematic">
                   <div className="book-schematic__grid-lines" />
                   <div className="book-schematic__badge">
-                    {isSecurity && '🛡️ Enterprise Security Suite'}
-                    {isCommunity && '🤝 Social Empowerment Engine'}
-                    {isHackathon && '🏆 1st Place Innovation Award'}
-                    {!isSecurity && !isCommunity && !isHackathon && '⚙️ Production Architecture'}
+                    {proj.isFeatured ? '⭐ Featured Project' : '⚙️ Production Architecture'}
                   </div>
 
+                  {/* Generic architecture flow derived from technologies */}
                   <div className="book-schematic__flow">
-                    {isSecurity && (
-                      <>
-                        <div className="flow-step">Input Stream</div>
-                        <div className="flow-arrow">➔</div>
-                        <div className="flow-step">PII Detector</div>
-                        <div className="flow-arrow">➔</div>
-                        <div className="flow-step">Rule Masker</div>
-                        <div className="flow-arrow">➔</div>
-                        <div className="flow-step">Secure Store</div>
-                      </>
-                    )}
-                    {isCommunity && (
-                      <>
-                        <div className="flow-step">Portal UI</div>
-                        <div className="flow-arrow">➔</div>
-                        <div className="flow-step">Volunteer Sync</div>
-                        <div className="flow-arrow">➔</div>
-                        <div className="flow-step">Resource Pool</div>
-                        <div className="flow-arrow">➔</div>
-                        <div className="flow-step">Live Metrics</div>
-                      </>
-                    )}
-                    {isHackathon && (
-                      <>
-                        <div className="flow-step">Event Stream</div>
-                        <div className="flow-arrow">➔</div>
-                        <div className="flow-step">Fast Ingestion</div>
-                        <div className="flow-arrow">➔</div>
-                        <div className="flow-step">AI Automation</div>
-                        <div className="flow-arrow">➔</div>
-                        <div className="flow-step">Score Engine</div>
-                      </>
-                    )}
-                    {!isSecurity && !isCommunity && !isHackathon && (
+                    {proj.technologies && proj.technologies.length > 0 ? (
+                      proj.technologies.slice(0, 4).flatMap((tech, idx, arr) => {
+                        const nodes = [<div key={`step-${idx}`} className="flow-step">{tech}</div>];
+                        if (idx < arr.length - 1) {
+                          nodes.push(<div key={`arrow-${idx}`} className="flow-arrow">➔</div>);
+                        }
+                        return nodes;
+                      })
+                    ) : (
                       <>
                         <div className="flow-step">Client App</div>
                         <div className="flow-arrow">➔</div>
@@ -246,7 +208,7 @@ export function ProjectBook({ projects }: ProjectBookProps) {
                         <div className="flow-arrow">➔</div>
                         <div className="flow-step">Service Layer</div>
                         <div className="flow-arrow">➔</div>
-                        <div className="flow-step">Postgres DB</div>
+                        <div className="flow-step">Database</div>
                       </>
                     )}
                   </div>

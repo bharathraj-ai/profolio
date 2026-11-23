@@ -1,17 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { usePortfolio } from "../../context/PortfolioContext";
-import { useApi } from "../../hooks/useApi";
+import { useLazyApi } from "../../hooks/useLazyApi";
 import { getProjects } from "../../api/projectService";
 import { ProjectData } from "../../types/api";
 import { getImageUrl } from "../../utils/imageUrl";
 
 export function Projects() {
-  const portfolio = usePortfolio();
-  const fallback = useApi<ProjectData[]>(getProjects);
-  const projects = portfolio?.data?.projects || fallback.data;
-  const loading = portfolio ? portfolio.loading && !projects : fallback.loading;
-  const error = portfolio?.error && !projects ? portfolio.error : fallback.error;
+  const { data: projects, loading, error, ref } = useLazyApi<ProjectData[]>(getProjects);
 
   const activeProjects = projects || [];
   const count = activeProjects.length;
@@ -54,7 +49,6 @@ export function Projects() {
     if (diff < -count / 2) diff += count;
 
     if (diff === 0) {
-      // Active Center Card: 100% opaque, elevated, top z-index
       return {
         x: "0px",
         y: 0,
@@ -66,7 +60,6 @@ export function Projects() {
         pointerEvents: "auto" as const,
       };
     } else if (diff === 1) {
-      // Right Card: 100% opaque background, angled inward in 3D
       return {
         x: "340px",
         y: 0,
@@ -78,7 +71,6 @@ export function Projects() {
         pointerEvents: "auto" as const,
       };
     } else if (diff === -1) {
-      // Left Card: 100% opaque background, angled inward in 3D
       return {
         x: "-340px",
         y: 0,
@@ -90,7 +82,6 @@ export function Projects() {
         pointerEvents: "auto" as const,
       };
     } else {
-      // Background hidden cards: display none so they can never leak or overlap
       return {
         x: diff > 0 ? "520px" : "-520px",
         y: 0,
@@ -105,12 +96,12 @@ export function Projects() {
   };
 
   return (
-    <section id="projects" className="section section--alt">
+    <section id="projects" className="section section--alt" ref={ref}>
       <div className="container">
         <div className="section__header">
           <h2 className="section__title">Featured Projects</h2>
           <p className="section__subtitle">
-            Explore recent work across data privacy, community platforms, and AI automation.
+            A selection of my recent builds, explorations, and contributions.
           </p>
           <div className="section__divider" />
         </div>
@@ -142,14 +133,7 @@ export function Projects() {
               if (diff < -count / 2) diff += count;
               const isActive = diff === 0;
 
-              const nameLower = p.name.toLowerCase();
-              const badgeLabel = nameLower.includes("hackathon")
-                ? "🏆 Award Winner"
-                : nameLower.includes("guardian")
-                ? "🛡️ Privacy Suite"
-                : nameLower.includes("udhayam")
-                ? "🤝 Community Impact"
-                : "Featured Project";
+              const badgeLabel = p.isFeatured ? "⭐ Featured" : "Project";
 
               const projectNum = String(i + 1).padStart(2, "0");
 
@@ -223,11 +207,14 @@ export function Projects() {
 
                     {p.technologies && p.technologies.length > 0 && (
                       <div className="project-card__tech">
-                        {p.technologies.map((t, tIdx) => (
+                        {p.technologies.slice(0, 6).map((t, tIdx) => (
                           <span key={tIdx} className="project-card__tech-tag">
                             {t}
                           </span>
                         ))}
+                        {p.technologies.length > 6 && (
+                          <span className="project-card__tech-tag">+{p.technologies.length - 6}</span>
+                        )}
                       </div>
                     )}
 

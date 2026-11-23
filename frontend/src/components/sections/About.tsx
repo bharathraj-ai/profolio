@@ -1,9 +1,8 @@
 import { motion } from "framer-motion";
 import { usePortfolio } from "../../context/PortfolioContext";
-import { useApi } from "../../hooks/useApi";
-import { getProfile } from "../../api/profileService";
+import { useLazyApi } from "../../hooks/useLazyApi";
 import { getEducation } from "../../api/educationService";
-import { EducationData, ProfileData } from "../../types/api";
+import { EducationData } from "../../types/api";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -12,17 +11,14 @@ const fadeIn = {
 
 export function About() {
   const portfolio = usePortfolio();
-  const fallbackProfile = useApi<ProfileData>(getProfile);
-  const fallbackEdu = useApi<EducationData[]>(getEducation);
+  const profile = portfolio?.profile ?? null;
+  const { data: education, loading: eduLoading, error: eduError, ref: eduRef } = useLazyApi<EducationData[]>(getEducation);
 
-  const profile = portfolio?.data?.profile || fallbackProfile.data;
-  const education = portfolio?.data?.education || fallbackEdu.data;
-
-  const loading = portfolio ? portfolio.loading && (!profile || !education) : (fallbackProfile.loading || fallbackEdu.loading);
-  const error = portfolio?.error && (!profile || !education) ? portfolio.error : (fallbackProfile.error || fallbackEdu.error);
+  const loading = (portfolio?.loading && !profile) || eduLoading;
+  const error = (portfolio?.error && !profile) ? portfolio.error : eduError;
 
   return (
-    <section id="about" className="section section--alt">
+    <section id="about" className="section section--alt" ref={eduRef}>
       <div className="container">
         <div className="section__header">
           <h2 className="section__title">About Me</h2>
@@ -79,21 +75,14 @@ export function About() {
                 )}
               </div>
 
-              <div className="card">
-                <h3 className="about__card-title">Career Interests</h3>
-                <div className="about__card-item">
-                  <strong>Backend Development</strong>
-                  <span>Java, Spring Boot, REST APIs, Microservices</span>
+              {profile?.tagline && (
+                <div className="card">
+                  <h3 className="about__card-title">Tagline</h3>
+                  <div className="about__card-item">
+                    <span>{profile.tagline}</span>
+                  </div>
                 </div>
-                <div className="about__card-item">
-                  <strong>Software Engineering</strong>
-                  <span>Scalable systems, clean architecture, databases</span>
-                </div>
-                <div className="about__card-item">
-                  <strong>AI &amp; Data Science</strong>
-                  <span>Machine learning, NLP, data-driven applications</span>
-                </div>
-              </div>
+              )}
             </motion.div>
           </motion.div>
         )}

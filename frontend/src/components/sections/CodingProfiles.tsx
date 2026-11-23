@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import { usePortfolio } from "../../context/PortfolioContext";
-import { useApi } from "../../hooks/useApi";
+import { useLazyApi } from "../../hooks/useLazyApi";
 import { getCodingProfiles } from "../../api/codingProfileService";
 import { CodingProfileData } from "../../types/api";
 
@@ -14,14 +13,10 @@ const cardVariant: import("framer-motion").Variants = {
 };
 
 export function CodingProfiles() {
-  const portfolio = usePortfolio();
-  const fallback = useApi<CodingProfileData[]>(getCodingProfiles);
-  const profiles = portfolio?.data?.codingProfiles || fallback.data;
-  const loading = portfolio ? portfolio.loading && !profiles : fallback.loading;
-  const error = portfolio?.error && !profiles ? portfolio.error : fallback.error;
+  const { data: profiles, loading, error, ref } = useLazyApi<CodingProfileData[]>(getCodingProfiles);
 
   return (
-    <section id="profiles" className="section section--alt">
+    <section id="profiles" className="section section--alt" ref={ref}>
       <div className="container">
         <div className="section__header">
           <h2 className="section__title">Coding Profiles</h2>

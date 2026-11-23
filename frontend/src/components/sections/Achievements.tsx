@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-import { usePortfolio } from "../../context/PortfolioContext";
-import { useApi } from "../../hooks/useApi";
+import { useLazyApi } from "../../hooks/useLazyApi";
 import { getAchievements, getCertifications } from "../../api/achievementService";
 import { AchievementData, CertificationData } from "../../types/api";
 
@@ -14,18 +13,18 @@ const cardVariant: import("framer-motion").Variants = {
 };
 
 export function Achievements() {
-  const portfolio = usePortfolio();
-  const fallbackAch = useApi<AchievementData[]>(getAchievements);
-  const fallbackCert = useApi<CertificationData[]>(getCertifications);
+  const { data: achievements, loading: achLoading, error: achError, ref: achRef } = useLazyApi<AchievementData[]>(getAchievements);
+  const { data: certifications, loading: certLoading, error: certError, ref: certRef } = useLazyApi<CertificationData[]>(getCertifications);
 
-  const achievements = portfolio?.data?.achievements || fallbackAch.data;
-  const certifications = portfolio?.data?.certifications || fallbackCert.data;
-
-  const loading = portfolio ? portfolio.loading && (!achievements || !certifications) : (fallbackAch.loading || fallbackCert.loading);
-  const error = portfolio?.error && (!achievements || !certifications) ? portfolio.error : (fallbackAch.error || fallbackCert.error);
+  const loading = achLoading || certLoading;
+  const error = achError || certError;
 
   return (
-    <section id="achievements" className="section">
+    <section
+      id="achievements"
+      className="section"
+      ref={(node) => { achRef(node); certRef(node); }}
+    >
       <div className="container">
         <div className="section__header">
           <h2 className="section__title">Achievements</h2>
