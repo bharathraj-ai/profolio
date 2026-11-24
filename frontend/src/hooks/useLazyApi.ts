@@ -39,6 +39,15 @@ export function setLazyCache<T>(key: string, data: T): void {
   setCached(key, data);
 }
 
+/** Clear all lazy cache or a specific key (e.g. on admin update) */
+export function clearLazyCache(key?: string): void {
+  if (key) {
+    memoryCache.delete(key);
+  } else {
+    memoryCache.clear();
+  }
+}
+
 /**
  * Lazily fetches data only when the target element is near the viewport.
  * Uses IntersectionObserver with a generous rootMargin so the fetch
