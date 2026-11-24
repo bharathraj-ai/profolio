@@ -30,10 +30,12 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/api/public")
 public class PublicController {
 
-    private static final CacheControl PUBLIC_CACHE = CacheControl.maxAge(60, TimeUnit.SECONDS)
+    // Browser caches for 30s, CDN for 60s, allows stale for up to 2 min.
+    // Admin writes trigger @CacheEvict on the backend immediately.
+    private static final CacheControl PUBLIC_CACHE = CacheControl.maxAge(30, TimeUnit.SECONDS)
             .cachePublic()
-            .sMaxAge(3600, TimeUnit.SECONDS)
-            .staleWhileRevalidate(86400, TimeUnit.SECONDS);
+            .sMaxAge(60, TimeUnit.SECONDS)
+            .staleWhileRevalidate(120, TimeUnit.SECONDS);
 
     private final ProfileService profileService;
     private final EducationService educationService;

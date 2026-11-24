@@ -76,14 +76,7 @@
   gap: 0.45rem;
   white-space: nowrap;
 }
-.hero__image-badge::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  background: #16a34a;
-  border-radius: 50%;
-  display: inline-block;
-}
+
 @media (max-width: 900px) {
   .hero__container {
     flex-direction: column-reverse;

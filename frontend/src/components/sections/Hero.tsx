@@ -101,7 +101,7 @@ export function Hero() {
                     rel="noopener noreferrer"
                     className="btn btn--outline"
                   >
-                    Download Resume
+                     Resume
                   </a>
                 )}
                 <a href="#contact" className="btn btn--outline">

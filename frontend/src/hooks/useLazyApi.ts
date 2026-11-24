@@ -8,11 +8,35 @@ export interface UseLazyApiResult<T> {
   refetch: () => void;
 }
 
-const memoryCache = new Map<string, any>();
+interface CacheEntry<T> {
+  data: T;
+  expiresAt: number;
+}
+
+// Frontend JS cache: data lives for 2 minutes per tab session.
+// Keeps navigation instant but doesn't serve stale data forever.
+const CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
+
+const memoryCache = new Map<string, CacheEntry<any>>();
 const inFlightRequests = new Map<string, Promise<any>>();
 
+function getCached<T>(key: string): T | undefined {
+  const entry = memoryCache.get(key);
+  if (!entry) return undefined;
+  if (Date.now() > entry.expiresAt) {
+    memoryCache.delete(key);
+    return undefined;
+  }
+  return entry.data as T;
+}
+
+function setCached<T>(key: string, data: T): void {
+  memoryCache.set(key, { data, expiresAt: Date.now() + CACHE_TTL_MS });
+}
+
+/** Externally seed the cache (e.g. from PortfolioContext pre-fetched data). */
 export function setLazyCache<T>(key: string, data: T): void {
-  memoryCache.set(key, data);
+  setCached(key, data);
 }
 
 /**
@@ -29,7 +53,7 @@ export function useLazyApi<T>(
   rootMargin: string = '400px',
 ): UseLazyApiResult<T> {
   const cacheKey = customKey || fetchFn.name || fetchFn.toString();
-  const cachedInitial = memoryCache.has(cacheKey) ? (memoryCache.get(cacheKey) as T) : null;
+  const cachedInitial = getCached<T>(cacheKey) ?? null;
 
   const [data, setData] = useState<T | null>(cachedInitial);
   const [loading, setLoading] = useState<boolean>(false);
@@ -39,8 +63,9 @@ export function useLazyApi<T>(
   const nodeRef = useRef<HTMLElement | null>(null);
 
   const execute = useCallback(() => {
-    if (memoryCache.has(cacheKey)) {
-      setData(memoryCache.get(cacheKey));
+    const cached = getCached<T>(cacheKey);
+    if (cached !== undefined) {
+      setData(cached);
       setLoading(false);
       return;
     }
@@ -52,7 +77,7 @@ export function useLazyApi<T>(
     if (!promise) {
       promise = fetchFn()
         .then((res) => {
-          memoryCache.set(cacheKey, res);
+          setCached(cacheKey, res);
           inFlightRequests.delete(cacheKey);
           return res;
         })
@@ -121,20 +146,20 @@ export function useLazyApi<T>(
     };
   }, []);
 
-  // If data was already cached, serve it instantly
+  // If data was already cached when this hook mounts but state hasn't been set
   useEffect(() => {
-    if (memoryCache.has(cacheKey) && !data) {
-      setData(memoryCache.get(cacheKey));
+    const cached = getCached<T>(cacheKey);
+    if (cached !== undefined && !data) {
+      setData(cached);
       triggered.current = true;
     }
   }, [cacheKey, data]);
 
   const refetch = useCallback(() => {
-    memoryCache.delete(cacheKey);
-    triggered.current = true;
+    memoryCache.delete(cacheKey); // bypass TTL — force fresh fetch
+    triggered.current = false;
     execute();
   }, [cacheKey, execute]);
 
   return { data, loading, error, ref, refetch };
 }
-

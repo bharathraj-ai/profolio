@@ -133,7 +133,7 @@ export function Projects() {
               if (diff < -count / 2) diff += count;
               const isActive = diff === 0;
 
-              const badgeLabel = p.isFeatured ? "⭐ Featured" : "Project";
+              const badgeLabel = p.isFeatured ? " Featured" : "Project";
 
               const projectNum = String(i + 1).padStart(2, "0");
 

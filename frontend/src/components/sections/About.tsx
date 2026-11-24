@@ -9,6 +9,27 @@ const fadeIn = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
+function formatEducationPeriod(edu: EducationData) {
+  const parts: string[] = [];
+  if (edu.startYear && edu.endYear) {
+    parts.push(`${edu.startYear} - ${edu.endYear}`);
+  } else if (edu.startYear) {
+    parts.push(`${edu.startYear}`);
+  } else if (edu.endYear) {
+    parts.push(`${edu.endYear}`);
+  }
+
+  if (edu.description && edu.description.trim()) {
+    parts.push(edu.description.trim());
+  }
+
+  if (edu.isCurrent) {
+    parts.push('Present');
+  }
+
+  return parts.length > 0 ? ` (${parts.join(' • ')})` : '';
+}
+
 export function About() {
   const portfolio = usePortfolio();
   const profile = portfolio?.profile ?? null;
@@ -66,7 +87,7 @@ export function About() {
                       </strong>
                       <span>
                         {edu.institution}
-                        {edu.startYear ? ` (${edu.startYear} - ${edu.isCurrent ? 'Present' : edu.endYear || ''})` : ''}
+                        {formatEducationPeriod(edu)}
                       </span>
                     </div>
                   ))

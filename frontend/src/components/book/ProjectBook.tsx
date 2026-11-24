@@ -187,7 +187,7 @@ export function ProjectBook({ projects }: ProjectBookProps) {
                 <div className="book-schematic">
                   <div className="book-schematic__grid-lines" />
                   <div className="book-schematic__badge">
-                    {proj.isFeatured ? '⭐ Featured Project' : '⚙️ Production Architecture'}
+                    {proj.isFeatured ? ' Featured Project' : ' Production Architecture'}
                   </div>
 
                   {/* Generic architecture flow derived from technologies */}
