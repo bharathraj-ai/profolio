@@ -1,6 +1,7 @@
 import { motion, type Variants } from "framer-motion";
 import { usePortfolio } from "../../context/PortfolioContext";
 import { getImageUrl } from "../../utils/imageUrl";
+import { scrollToSection } from "../../utils/scroll";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 24 },
@@ -91,7 +92,7 @@ export function Hero() {
                 animate="visible"
                 custom={4}
               >
-                <a href="#projects" className="btn btn--primary">
+                <a href="#projects" className="btn btn--primary" onClick={(e) => scrollToSection(e, "projects")}>
                   View Projects
                 </a>
                 {profile.resumeUrl && (
@@ -104,7 +105,7 @@ export function Hero() {
                      Resume
                   </a>
                 )}
-                <a href="#contact" className="btn btn--outline">
+                <a href="#contact" className="btn btn--outline" onClick={(e) => scrollToSection(e, "contact")}>
                   Contact Me
                 </a>
               </motion.div>

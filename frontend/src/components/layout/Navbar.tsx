@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { scrollToSection } from "../../utils/scroll";
 import "../../styles/navbar.css";
 
 const NAV_ITEMS = [
@@ -42,12 +43,27 @@ export function Navbar() {
     return () => observer.disconnect();
   }, []);
 
-  const handleClick = useCallback(() => setMenuOpen(false), []);
+  /* Strip any initial hash from URL after scrolling to it */
+  useEffect(() => {
+    if (window.location.hash) {
+      const id = window.location.hash.slice(1);
+      const target = document.getElementById(id);
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth" });
+      }
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+  }, []);
+
+  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    scrollToSection(e, id);
+    setMenuOpen(false);
+  }, []);
 
   return (
     <nav className={`navbar${scrolled ? " navbar--scrolled" : ""}`}>
       <div className="container navbar__inner">
-        <a href="#home" className="navbar__logo">
+        <a href="#home" className="navbar__logo" onClick={(e) => handleClick(e, "home")}>
           Bharathraj S
         </a>
 
@@ -68,7 +84,7 @@ export function Navbar() {
               key={item.href}
               href={item.href}
               className={`navbar__link${activeSection === item.href.slice(1) ? " navbar__link--active" : ""}`}
-              onClick={handleClick}
+              onClick={(e) => handleClick(e, item.href.slice(1))}
             >
               {item.label}
             </a>
